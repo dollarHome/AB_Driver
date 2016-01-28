@@ -17,6 +17,7 @@ DEPENDENCIES:
 HOW IT WORKS:
 ==============
 This tool works by providing support for 2 methods 1) generate, 2) verify
+
 generate() is expected to be run on the version A of the driver
 verify() is expected to be run on the version B of the driver
 
@@ -33,5 +34,8 @@ argument, the result(PASS/FAIL) is calculated.
 
 USAGE: 
 =======
-python imagecompare.py generate  -i <tracefile> -f <f no> -a <output.tar.gz> 
-python imagecompare.py verify  -a <output.tar.gz> -t
+Generate archive:
+	python imagecompare.py generate  -i <tracefile> -f <f no> -a <output.tar.gz>
+ 
+Verify image files:
+	python imagecompare.py verify  -a <output.tar.gz> -t
