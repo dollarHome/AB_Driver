@@ -2,18 +2,18 @@
 #/*
 # * Copyright @2016 Intel Corporation
 # *
-# * This library is free software; you can redistribute it and/or
-# * modify it under the terms of the GNU Lesser General Public
-# * License as published by the Free Software Foundation; either
-# * version 2.1 of the License, or (at your option) any later version.
+# * Permission is hereby granted, free of charge, to any person obtaining a
+# * copy of this software and associated documentation files (the "Software"),
+# * to deal in the Software without restriction, including without limitation
+# * the rights to use, copy, modify, merge, publish, distribute, sublicense,
+# * and/or sell copies of the Software, and to permit persons to whom the
+# * Software is furnished to do so, subject to the following conditions:
+#
+# * The above copyright notice and this permission notice shall be included
+# * in all copies or substantial portions of the Software.
 # *
-# * This library is distributed in the hope that it will be useful,
-# * but WITHOUT ANY WARRANTY; without even the implied warranty of
-# * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-# * Lesser General Public License for more details.
-# *
-# * You should have received a copy of the GNU Lesser General Public
-# * License along with this library. If not, see <http://www.gnu.org/licenses/>.
+# * You should have received a copy of the MIT License,
+# * If not, see <https://opensource.org/licenses/MIT>.
 # *
 # * Author: Sirisha Gandikota <sirisha.gandikota@intel.com>
 #
@@ -29,11 +29,11 @@ import ImageChops
 import tarfile
 import subprocess
 import sys
-import getopt
 import tempfile
 import shutil
 import os
 from numpy import mean, sqrt, square
+import argparse
 
 
 ######### generate() ###########
@@ -103,7 +103,7 @@ def verify(archFile, threshold):
 
     # Find rms error between the image histograms
     rmse = sqrt(mean(square([(hist1[i] - hist2[i]) for i in range(len(hist1))])))
-    print(("RMSE =" + str(rmse) + ", Threshold = " + threshold))
+    print(("RMSE = " + str(rmse) + ", Threshold = " + str(threshold)))
 
     if int(rmse) > int(threshold):
         print("FAIL")
@@ -126,37 +126,30 @@ def main(argv):
     threshold = 0
 
     #Scan inputs
-    try:
-        opts, args = getopt.getopt(argv, "hgvi:f:a:t:", ["help", "generate", "verify", "ifile=", "frameno=", "afile=", "threshold="])
-    except getopt.GetoptError:
-        print(usageMsg)
-        sys.exit(2)
-    for opt, arg in opts:
-        if opt in ("-h", "--help"):
-            print(usageMsg)
-            sys.exit()
-        elif opt in ("-g", "--generate"):
-            cmdFunc = opt
-        elif opt in ("-v", "--verify"):
-            cmdFunc = opt
-        elif opt in ("-i", "--ifile"):
-            traceFile = arg
-        elif opt in ("-f", "--frameno"):
-            frameNo = arg
-        elif opt in ("-a", "--afile"):
-            archFile = arg
-        elif opt in ("-t", "--threshold"):
-            threshold = arg
+    parser = argparse.ArgumentParser(usage=usageMsg)
+    parser.add_argument("cmd")
+    parser.add_argument("-i", "--ifile", dest="traceFile", help="trace file", metavar="FILE")
+    parser.add_argument("-f", "--frameNo", dest="frameNo")
+    parser.add_argument("-a", "--afile", dest="archFile", help="archive file", metavar="FILE")
+    parser.add_argument("-t", "--threshold", type=int, dest="threshold")
 
-    if cmdFunc == '--generate':
-        if len(sys.argv) < 8:
-            print(usageMsg)
+    args = parser.parse_args()
+
+    cmdFunc = args.cmd
+    traceFile = args.traceFile
+    frameNo = args.frameNo
+    archFile = args.archFile
+    threshold = args.threshold
+
+    if cmdFunc == 'generate':
+        if len(sys.argv) != 8:
+            print((usageMsg))
             sys.exit()
         else:
             retVal = generate(traceFile, frameNo, archFile)
-    elif cmdFunc == '--verify':
-        if len(sys.argv) < 6:
-            print(usageMsg)
+    elif cmdFunc == 'verify':
+        if len(sys.argv) != 6:
+            print((usageMsg))
             sys.exit()
         else:
             retVal = verify(archFile, threshold)
