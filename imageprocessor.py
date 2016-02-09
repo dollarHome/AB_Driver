@@ -38,7 +38,7 @@ import argparse
 
 ######### generate() ###########
 def generate(traceFile, frameNo, archFile):
-    cmd = "apitrace dump-images --calls=" + frameNo + " ./" + traceFile
+    cmd = "glretrace --headless --snapshot=" + frameNo + " " + traceFile
     targetImgFile = frameNo + ".png"
     mvCmd = "mv *" + frameNo + ".png " + targetImgFile
     frameFile = "frameNum.txt"
@@ -49,6 +49,7 @@ def generate(traceFile, frameNo, archFile):
     fp.close()
 
     # Extract image from tracefile
+    print("Generating archive file, please wait...")
     retCode = subprocess.call(cmd, shell=True)
     retCode = subprocess.call(mvCmd, shell=True)
 
@@ -58,6 +59,7 @@ def generate(traceFile, frameNo, archFile):
     tar.add(frameFile)
     tar.add(targetImgFile)
     tar.close()
+    print(("Generated archive file " + archFile))
 
     #Delete intermediary files
     os.remove(frameFile)
@@ -85,9 +87,10 @@ def verify(archFile, threshold):
     fp.close()
     sourceImgFile = tmpDir + frameNo + ".png"
 
-    cmd = "apitrace dump-images --calls=" + frameNo + " " + traceFile
+    cmd = "glretrace --headless --snapshot=" + frameNo + " " + traceFile
     targetImgFile = tmpDir + frameNo + "_target.png"
     mvCmd = "mv " + "?*" + frameNo + ".png " + targetImgFile
+    print("Verification in progress, please wait...")
     retCode = subprocess.call(cmd, shell=True)
     retCode = subprocess.call(mvCmd, shell=True)
 
